@@ -6,4 +6,11 @@ export type ScreenNavigatorParamList={
 
 }
 
+export type DrawerNavigatorParamsList = {
+   Dashboard: undefined;
+   ManageCategoriesScreen: undefined;
+ };
+ 
+
 export type ScreenNavigationProp = NativeStackScreenProps<ScreenNavigatorParamList,Dashboard,ManageCategoriesScreen>
+export type DrawerNavigationProps = DrawerNavigationProp<DrawerNavigatorParamsList, Dashboard, ManageCategoriesScreen>;
