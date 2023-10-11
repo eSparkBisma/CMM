@@ -12,7 +12,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import categorySlice from './categorySlice';
 import createDebugger from 'redux-flipper';
-import { Category } from './categorySlice';
+import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 
 
 const persistConfig = {
@@ -20,13 +20,8 @@ const persistConfig = {
   storage: AsyncStorage,
 };
 
-export interface RootState {
-  categories: Category; // Include state type of your category slice
-  // Add other slices as needed
-}
-
 export const rootReducer = combineReducers({
-  task: categorySlice,
+  category : categorySlice,
   // Add other reducers here
 });
 
@@ -34,7 +29,7 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 const store = configureStore({
   reducer: {
-    task: persistedReducer,
+    category: persistedReducer,
   },
   middleware: getDefaultMiddleware =>
   getDefaultMiddleware({
@@ -47,3 +42,6 @@ const store = configureStore({
 const persistor = persistStore(store);
 
 export { store, persistor };
+
+export const useAppDispatch:()=>typeof store.dispatch=useDispatch;
+export const useAppSelector: TypedUseSelectorHook<ReturnType<typeof store.getState>>=useSelector;

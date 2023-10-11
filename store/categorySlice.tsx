@@ -1,62 +1,60 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 
-interface Field {
-  name: string;
-  value: string;
-}
-
 export interface Category {
-  [key: string]: Field; // Each category is an object with dynamic field names
+  id: number;
+  name: string;
 }
 
-export interface InitialState {
+export interface CategoryState {
   categories: Category[];
+  title: string;
+  isEditing: boolean;
+  currentIndex: number;
 }
 
-const initialState: InitialState = {
+export const initialState: CategoryState = {
   categories: [],
+  title: '',
+  isEditing: false,
+  currentIndex: 0,
 };
 
 const categorySlice = createSlice({
   name: 'categories',
   initialState,
   reducers: {
-    addCategory: (state, action: PayloadAction<Category>) => {
-      state.categories.push(action.payload);
+    addCategory: state => {
+      const newCategory: Category = {
+        id: state.categories.length + 1,
+        name: state.title,
+      };
+      state.categories.push(newCategory);
     },
-    deleteCategory: (state, action: PayloadAction<number>) => {
-      state.categories.splice(action.payload, 1);
+    addingCategory: (state, action) => {
+      state.title = action.payload;
     },
-    addFieldToCategory: (
-      state,
-      action: PayloadAction<{categoryId: number; field: Field}>,
-    ) => {
-      const {categoryId, field} = action.payload;
-      const category = state.categories[categoryId];
-      if (category) {
-        // Use type assertion to specify the type of field.name and field.value
-        (category as any)[field.name] = field.value;
-      }
+    deleteCategory: (state, action: PayloadAction<{id: number}>) => {
+      state.categories = state.categories.filter(
+        category => category.id !== action.payload.id,
+      );
     },
-    deleteFieldFromCategory: (
-      state,
-      action: PayloadAction<{categoryId: number; fieldName: string}>,
-    ) => {
-      const {categoryId, fieldName} = action.payload;
-      const category = state.categories[categoryId];
-      if (category && category[fieldName]) {
-        // Use type assertion to specify the type of fieldName
-        delete (category as any)[fieldName];
-      }
+    editingCategory: (state, action) => {
+      state.title = action.payload;
+    },
+    isEditingCategory: (state, action) => {
+      state.currentIndex = action.payload;
+      state.title = state.categories[state.currentIndex].name;
+      state.isEditing = true;
     },
   },
 });
 
 export const {
   addCategory,
-  addFieldToCategory,
+  addingCategory,
   deleteCategory,
-  deleteFieldFromCategory,
+  isEditingCategory,
+  editingCategory,
 } = categorySlice.actions;
 
 export default categorySlice.reducer;

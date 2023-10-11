@@ -1,32 +1,29 @@
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import React, {useState} from 'react';
-import {StyleSheet, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {FlatList, StyleSheet, View, Dimensions} from 'react-native';
 import {Appbar, Button, Text} from 'react-native-paper';
-import {useDispatch, useSelector} from 'react-redux';
 import AddCategoryTray from '../components/AddCategoryTray';
-import {InitialState} from '../store/categorySlice';
-import {
-  addCategory,
-  deleteCategory,
-  addFieldToCategory,
-  deleteFieldFromCategory,
-} from '../store/categorySlice';
-import categorySlice from '../store/categorySlice';
 
 type ManageCategoriesScreen = {
   navigation: NativeStackNavigationProp<any>;
 };
 
 const ManageCategoriesScreen: React.FC = () => {
-  const categories = useSelector((state: InitialState) => state.categories);
   const [categoryTrays, setCategoryTrays] = useState<React.ReactNode[]>([]);
+
+  const screenWidth = Dimensions.get('window').width;
+  const screenHeight = Dimensions.get('window').height;
+  console.log('height: ', screenHeight);
+  console.log('width: ', screenWidth);
+  const isTablet = screenWidth >= 800 && screenHeight >= 700;
 
   const addCategoryTray = () => {
     const newCategoryTray = <AddCategoryTray key={categoryTrays.length} />;
     setCategoryTrays(prevTrays => [...prevTrays, newCategoryTray]);
   };
+
   return (
-    <>
+    <View style={{flex: 1}}>
       <Appbar.Header style={{height: 50}}>
         <Appbar.Action
           icon="menu"
@@ -41,19 +38,28 @@ const ManageCategoriesScreen: React.FC = () => {
           />
         </View>
       </Appbar.Header>
-      <View style={styles.mainContainer}>
-        {categoryTrays.length === 0 ? (
-          <Text style={{paddingBottom: 20}}>No Categories To Display</Text>
-        ) : null}
-        {categories.map((category: any) => (
-          <View key={category.id}>
-            <Text>{category.name}</Text>
-            {/* Render fields or additional category information here */}
-          </View>
-        ))}
-        {categoryTrays.map((tray, index) => (
-          <View key={index}>{tray}</View>
-        ))}
+      <View style={{flex: 1, alignSelf: 'center'}}>
+        <FlatList
+          data={categoryTrays}
+          renderItem={({item, index}) => (
+            <React.Fragment key={index}>{item}</React.Fragment>
+          )}
+          contentContainerStyle={{flexGrow: 1}}
+          ListEmptyComponent={
+            <Text style={{alignSelf: 'center', marginVertical: '2%'}}>
+              No categories to display
+            </Text>
+          }
+          keyExtractor={(item, index) => index.toString()}
+          style={styles.FlatList}
+        />
+      </View>
+
+      <View
+        style={{
+          alignItems: 'center',
+          paddingTop: 10,
+        }}>
         <Button
           style={styles.Button}
           mode="contained"
@@ -61,7 +67,7 @@ const ManageCategoriesScreen: React.FC = () => {
           ADD NEW CATEGORY
         </Button>
       </View>
-    </>
+    </View>
   );
 };
 
@@ -74,18 +80,14 @@ const styles = StyleSheet.create({
     marginLeft: -50,
     marginTop: 13,
   },
-  mainContainer: {
-    flex: 1,
-    marginVertical: 5,
-    // backgroundColor: 'yellow',
-    alignItems: 'center',
-    // maxHeight: '80%',
-    justifyContent: 'space-between',
+  FlatList: {
+    width: '100%',
   },
   Button: {
     padding: 0,
     borderRadius: 2,
     width: '95%',
     height: 40,
+    marginBottom: 10,
   },
 });
